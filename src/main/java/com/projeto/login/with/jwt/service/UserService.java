@@ -1,5 +1,6 @@
 package com.projeto.login.with.jwt.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.projeto.login.with.jwt.dto.UserRequestDTO;
@@ -13,9 +14,11 @@ import com.projeto.login.with.jwt.repository.UserRepository;
 public class UserService {
     
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private boolean isValid(UserRequestDTO request){
@@ -34,12 +37,12 @@ public class UserService {
         return true;
     }
 
-    public UserResponseDTO createUser(UserRequestDTO request, String hashPass){
+    public UserResponseDTO createUser(UserRequestDTO request){
         isValid(request);
         User user = new User();
         user.setName(request.name());
         user.setEmail(request.email());
-        user.setPassword(hashPass);
+        user.setPassword(passwordEncoder.encode(request.password()));
         userRepository.save(user);
         return UserMapper.conversor(user);
     }
